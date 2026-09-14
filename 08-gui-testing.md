@@ -90,7 +90,17 @@ This document extends `03-testing-standards.md` with patterns for headless GUI t
   @pytest.mark.integration
   def test_user_enters_expression_and_calculates(mocker: MockerFixture) -> None:
       mock_display = mocker.Mock()
-
+      mock_history = mocker.Mock()
+      gui = Calculator(display=mock_display, history=mock_history)
+      
+      gui.on_button_click("2")
+      gui.on_button_click("+")
+      gui.on_button_click("3")
+      gui.on_button_click("=")
+      
+      mock_display.update.assert_called_with("5")
+      mock_history.add.assert_called_once()
+  ```
 
 ## Coverage & untestable paths
 
@@ -142,18 +152,6 @@ This document extends `03-testing-standards.md` with patterns for headless GUI t
 - **Don't rely on display timing or animation** — mock timers and transitions.
 - **Don't sleep in tests** — use mocking or synchronous event dispatch instead.
 
-      mock_history = mocker.Mock()
-      gui = Calculator(display=mock_display, history=mock_history)
-      
-      gui.on_button_click("2")
-      gui.on_button_click("+")
-      gui.on_button_click("3")
-      gui.on_button_click("=")
-      
-      mock_display.update.assert_called_with("5")
-      mock_history.add.assert_called_once()
-  ```
-
 ## Headless testing (no window)
 
 - Run tests without opening a window. Configure GUI framework to run headless:
@@ -173,3 +171,4 @@ This document extends `03-testing-standards.md` with patterns for headless GUI t
       handler()
       handler.assert_called_once()
   ```
+

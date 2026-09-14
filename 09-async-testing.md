@@ -86,7 +86,22 @@ This document extends `03-testing-standards.md` with patterns for testing async/
           async_function(1),
           async_function(2),
           async_function(3),
-
+      )
+      assert len(results) == 3
+  ```
+- Use `asyncio.wait()` to test race conditions or timeouts:
+  ```python
+  @pytest.mark.unit
+  @pytest.mark.asyncio
+  async def test_first_result_wins() -> None:
+      done, pending = await asyncio.wait(
+          [asyncio.sleep(0.1), asyncio.sleep(0.2)],
+          return_when=asyncio.FIRST_COMPLETED,
+      )
+      assert len(done) == 1
+      for task in pending:
+          task.cancel()
+  ```
 
 ## Mocking time & delays
 
@@ -123,6 +138,33 @@ This document extends `03-testing-standards.md` with patterns for testing async/
   ```
 - **Event loop cleanup:** Handled automatically by `pytest-asyncio` — no manual teardown needed.
 
+## Testing task cancellation
+
+- Use `asyncio.CancelledError` to test graceful shutdown:
+  ```python
+  @pytest.mark.unit
+  @pytest.mark.asyncio
+  async def test_task_cancellation() -> None:
+      task = asyncio.create_task(long_running_operation())
+      await asyncio.sleep(0.01)
+      task.cancel()
+      
+      with pytest.raises(asyncio.CancelledError):
+          await task
+  ```
+
+## Testing context managers (async with)
+
+- Test `__aenter__` and `__aexit__` by using `async with`:
+  ```python
+  @pytest.mark.unit
+  @pytest.mark.asyncio
+  async def test_async_context_manager() -> None:
+      async with AsyncResource() as resource:
+          assert resource.is_open
+      assert resource.is_closed
+  ```
+
 ## Coverage & pragma: no cover
 
 - Mark platform-specific async code (e.g., Windows-only event loop setup) with `# pragma: no cover`:
@@ -150,46 +192,3 @@ This document extends `03-testing-standards.md` with patterns for testing async/
 - **Don't mix sync and async without `sync_to_async`** — keep boundaries clear.
 - **Don't use `time.sleep()` in async tests** — use `asyncio.sleep()` or mocking instead.
 
-      )
-      assert len(results) == 3
-  ```
-- Use `asyncio.wait()` to test race conditions or timeouts:
-  ```python
-  @pytest.mark.unit
-  @pytest.mark.asyncio
-  async def test_first_result_wins() -> None:
-      done, pending = await asyncio.wait(
-          [asyncio.sleep(0.1), asyncio.sleep(0.2)],
-          return_when=asyncio.FIRST_COMPLETED,
-      )
-      assert len(done) == 1
-      for task in pending:
-          task.cancel()
-  ```
-
-## Testing task cancellation
-
-- Use `asyncio.CancelledError` to test graceful shutdown:
-  ```python
-  @pytest.mark.unit
-  @pytest.mark.asyncio
-  async def test_task_cancellation() -> None:
-      task = asyncio.create_task(long_running_operation())
-      await asyncio.sleep(0.01)
-      task.cancel()
-      
-      with pytest.raises(asyncio.CancelledError):
-          await task
-  ```
-
-## Testing context managers (async with)
-
-- Test `__aenter__` and `__aexit__` by using `async with`:
-  ```python
-  @pytest.mark.unit
-  @pytest.mark.asyncio
-  async def test_async_context_manager() -> None:
-      async with AsyncResource() as resource:
-          assert resource.is_open
-      assert resource.is_closed
-  ```
