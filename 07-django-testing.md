@@ -214,3 +214,22 @@ This document extends `03-testing-standards.md` with Django-specific patterns fo
       assert response.status_code == 201
       assert User.objects.count() == 1
   ```
+
+  # Django Testing Standards & Safety
+
+## Database & Migrations (CRITICAL)
+- **Migration Rule:** Whenever you modify any `models.py` file, you MUST immediately run `python manage.py makemigrations`. Failing to generate migrations will break the test database setup.
+- Use `@pytest.mark.django_db` on any test touching the database.
+
+## Model Testing
+- Test models in isolation using `model_bakery`.
+- Test `clean()` and validators directly (no DB hit needed).
+
+## View Testing (Function & Class-based views)
+- Use `pytest-django`'s `client` fixture for integration view testing.
+  ```python
+  @pytest.mark.unit
+  @pytest.mark.django_db
+  def test_user_list_returns_200(client: Client) -> None:
+      response = client.get("/api/users/")
+      assert response.status_code == 200
