@@ -2,6 +2,17 @@
 
 Practical step-by-step guides for common development tasks, reinforcing the Red → Green → Refactor → Commit cycle from `01-tdd-workflow.md`.
 
+**Workflows (inline in this file):**
+- Add a New Feature
+- Fix a Bug
+- Refactor Without Changing Behavior
+- Add a Test for Existing Code
+
+**Standalone workflow guides (in `workflows/` directory):**
+- `workflows/new-feature.md` — Cline `/new-feature` command
+- `workflows/fix-bug.md` — Cline `/fix-bug` command
+- `workflows/rollback.md` — Emergency rollback/revert procedures
+
 ## Template: Add a New Feature
 
 **Scenario:** Add a new user-facing function or feature (e.g., "calculate discount based on order total").
@@ -165,6 +176,18 @@ Practical step-by-step guides for common development tasks, reinforcing the Red 
 ### [COMMIT]
 
 - Commit: `git commit -m "test: add edge case coverage for discount_calculation"`
+
+---
+
+## Template: Rollback to Previous Commit or Tag
+
+Emergency revert to stable state. See `workflows/rollback.md` for full step-by-step guide including:
+- Identify rollback target (commit hash, tag, deployment snapshot)
+- Choose method (revert, reset, automated GitHub Actions)
+- Validate rollback with `make test`
+- Document reason and fix forward
+
+Quick reference: `git revert <hash>` (safe, audit trail) or `git reset --hard <hash>` (destructive, clean history).
 
 ---
 

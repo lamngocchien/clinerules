@@ -165,6 +165,31 @@ This document extends `03-testing-standards.md` with patterns for testing async/
       assert resource.is_closed
   ```
 
+## Testing async resource cleanup & exceptions
+
+- Test that `__aexit__` cleanup runs even if `__aenter__` or the context body raises:
+  ```python
+  @pytest.mark.unit
+  @pytest.mark.asyncio
+  async def test_async_context_cleanup_on_exception() -> None:
+      cleanup_called = False
+      
+      class TestResource:
+          async def __aenter__(self):
+              return self
+          async def __aexit__(self, exc_type, exc, tb):
+              nonlocal cleanup_called
+              cleanup_called = True
+              return False  # Do not suppress exception
+      
+      with pytest.raises(ValueError):
+          async with TestResource():
+              raise ValueError("test error")
+      
+      assert cleanup_called  # Cleanup must run
+  ```
+- Verify that exceptions in `__aexit__` are propagated or suppressed correctly based on return value (`True` = suppress, `False` = propagate).
+
 ## Coverage & pragma: no cover
 
 - Mark platform-specific async code (e.g., Windows-only event loop setup) with `# pragma: no cover`:

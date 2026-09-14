@@ -41,3 +41,10 @@ find-and-replace edit) fails, do NOT resend the exact same call. Instead:
 - **Subject:** lowercase, imperative mood ("add feature" not "added feature"), no period, under 50 characters.
 - **Body** (optional): detailed explanation of why the change was made, not what changed. Wrap at 72 characters.
 - **Example:** `feat(auth): add JWT token refresh endpoint` or `fix: resolve race condition in cache invalidation`
+
+## Pre-commit hooks
+
+- Project includes pre-commit hooks (configured in `.pre-commit-config.yaml` if present). Hooks run `ruff`, `black`, and `mypy --strict` before each commit.
+- Install hooks: `pre-commit install` (one-time setup).
+- Run manually: `pre-commit run --all-files` to validate all files without committing.
+- Hooks auto-fix formatting issues; if a hook fails, review the changes, stage, and commit again.

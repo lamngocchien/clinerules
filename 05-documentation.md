@@ -34,3 +34,12 @@ afterthought, and not only when explicitly asked. Treat this as part of
 - Do not create an ADR for every small change — see the criteria in
   `docs/decisions/0000-template.md`. Over-documenting trivial choices makes
   the real decisions harder to find.
+
+## Deprecation pattern
+
+When removing or replacing a function, class, or module:
+1. Mark with `@deprecated` decorator or docstring note: `.. deprecated:: <version> Use <replacement> instead.`
+2. Add entry to `CHANGELOG.md` under `## [Unreleased] - Deprecated` with migration path.
+3. Keep deprecated code working for at least one major version; log a warning when called (e.g., `warnings.warn("function_name is deprecated, use new_function instead", DeprecationWarning)`).
+4. Write a test that the deprecation warning is raised (use `pytest.warns(DeprecationWarning)`).
+5. When removing in a future release, update CHANGELOG under `## [X.Y.Z] - Removed` and reference the deprecation version.

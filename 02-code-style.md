@@ -37,5 +37,14 @@
 - Custom exceptions must inherit from an appropriate Python stdlib exception
   (e.g. `ValueError`, `RuntimeError`), be named ending in `Error`, and have a
   docstring describing when they are raised.
+- **Exception handling:** Never use bare `except:` or catch `Exception` broadly without logging/re-raising. Always catch specific exception types (e.g., `except ValueError:`, `except (IOError, OSError):`). If you must catch broad exceptions, document why and log before re-raising.
+- **Circular imports:** Use `TYPE_CHECKING` guard at module top for type-only imports that would otherwise cause circular dependencies:
+  ```python
+  from __future__ import annotations
+  from typing import TYPE_CHECKING
+  if TYPE_CHECKING:
+      from app.other_module import SomeClass  # Import only during type-checking
+  ```
+- **Method naming (private/protected/dunder):** Private methods (`_method`) signal "internal, don't call directly" but are not strictly enforced; protected methods (rare in Python) have no special prefix. Dunder methods (`__method__`) are reserved for Python magic (e.g., `__init__`, `__str__`). Do not use dunder for custom "private" methods — use single underscore instead.
 - Import order: stdlib → third-party → first-party (`app.*`), with a blank
   line between groups — `ruff` (isort) enforces this automatically.
